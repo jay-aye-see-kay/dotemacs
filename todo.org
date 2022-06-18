@@ -1,0 +1,79 @@
+
+* Making emacs usable
+** Finder / finding stuf
+*** TODO open recent files
+*** DONE a dashboard?
+:LOGBOOK:
+- State "DONE"       from "IN-PROGRESS" [2022-04-15 Fri 18:17]
+:END:
+** Evil
+*** DONE rebind =C-w C-j= maps to work like vim
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-04-15 Fri 15:41]
+:END:
+*** DONE setup some SPC keymaps
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-06-13 Mon 14:09]
+CLOCK: [2022-06-13 Mon 13:03]--[2022-06-13 Mon 14:09] =>  1:06
+:END:
+- [ ] buffers
+- [ ] files (or should I just keep using =C-x C-f=?
+- [ ] project stuff?
+** Lsp + basic code setup
+*** TODO figure out code folding (origami?)
+*** TODO snippets
+** Tree-sitter
+*** TODO can I install via nix like neovim?
+** Org
+*** DONE setup file paths, agenda
+:LOGBOOK:
+- State "DONE"       from "IN-PROGRESS" [2022-04-15 Fri 18:17]
+:END:
+*** TODO Make org faster/simpler config?
+*** DONE larger default font
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-04-15 Fri 18:18]
+:END:
+*** DONE monospace font for code blocks in org
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-04-15 Fri 18:18]
+:END:
+*** DONE org TODO labels borked
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-04-15 Fri 18:18]
+:END:
+*** TODO set max width on org files like EFS
+*** TODO fixup code blocks, either bg colour or that line
+
+* Simplifying config
+** TODO ~corfu~ in place of ~company~?
+** TODO ~eglot~ in place of ~lsp mode~?
+** TODO ~vundo~ in place of ~unto~-tree?
+
+* Emacs config goes here
+** A heading
+~some code~
+*** A sub-heading
+[[https://github.com][link to GitHub]] /em/ _underline_ +strike+ *bold*
+
+** code blocks
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<triple-wheel-right>")
+    (lambda () (interactive) (scroll-right 2)))
+
+  (global-set-key (kbd "<triple-wheel-left>")
+    (lambda () (interactive) (scroll-left 2)))
+#+end_src
+
+#+begin_src python
+  def a_function():
+      print("foo")
+#+end_src
+
+* Clock summary
+#+BEGIN: clocktable :scope subtree :maxlevel 2
+#+CAPTION: Clock summary at [2022-06-13 Mon 14:12]
+| Headline     | Time   |
+|--------------+--------|
+| *Total time* | *0:00* |
+#+END:
