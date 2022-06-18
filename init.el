@@ -1,5 +1,33 @@
 ;; -*- lexical-binding: t; -*-
 
+;; Initialize package sources
+(require 'package)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+  ;; Initialize use-package on non-Linux platforms
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (file-name-directory buffer-file-name)
+                      (file-name-directory user-init-file))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
 ;; NOTE: The first time you load your configuration on a new machine, you'll
 ;; need to run the following command interactively so that mode line icons
 ;; display correctly:
@@ -57,7 +85,7 @@
 
 ;; modes with variable width font (docs + help)
 (dolist (mode '(help-mode-hook
-		helpful-mode-hook))
+                helpful-mode-hook))
   (add-hook mode (lambda () (variable-pitch-mode))))
 
 (use-package dashboard
@@ -74,8 +102,6 @@
    initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   (dashboard-setup-startup-hook))
 
-(use-package nix-mode
-  :mode "\\.nix\\'")
 
 
 ;; START completions
@@ -134,10 +160,236 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
-;; END completions
+(use-package undo-tree
+  :init
+  (global-undo-tree-mode 1))
 
-(load-file "~/.emacs.d/evil.el")
-(load-file "~/.emacs.d/keymaps.el")
-(load-file "~/.emacs.d/lsp.el")
-(load-file "~/.emacs.d/org.el")
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil) ; may not be as good/consistent so turned off TODO is it worth it?
+  (setq evil-want-C-u-scroll t)
+  (setq evil-undo-system 'undo-tree)
+  (setq evil-want-Y-yank-to-eol t)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state) ; emacs convention, reset/return to "normal mode"
+
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+(use-package evil-numbers
+  :after evil
+  :config
+  (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt))
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-commentary
+  :config (evil-commentary-mode))
+
+(evil-define-key 'normal 'global (kbd "C-s") 'save-buffer)
+(evil-define-key 'normal 'global (kbd "C-w C-h") 'evil-window-left)
+(evil-define-key 'normal 'global (kbd "C-w C-j") 'evil-window-down)
+(evil-define-key 'normal 'global (kbd "C-w C-k") 'evil-window-up)
+(evil-define-key 'normal 'global (kbd "C-w C-l") 'evil-window-right)
+
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; Since I let evil-mode take over C-u for buffer scrolling, I need to re-bind
+;; the universal-argument command to another key sequence
+(global-set-key (kbd "C-M-u") 'universal-argument)
+;; stop C-<direction> keys doing weird stuff
+(global-set-key (kbd "C-j") nil)
+(global-set-key (kbd "C-k") nil)
+(global-set-key (kbd "C-l") nil)
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+;; make horizontal touchpad scrolling work (not tested on mac)
+(global-set-key (kbd "<triple-wheel-right>")
+  (lambda () (interactive) (scroll-right 2)))
+(global-set-key (kbd "<triple-wheel-left>")
+  (lambda () (interactive) (scroll-left 2)))
+
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+
+(use-package general
+  :config
+  (general-create-definer rune/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+  (general-create-definer rune/quick-keys
+    :keymaps '(normal)
+    :prefix ","))
+
+
+(use-package hydra)
+
+(defhydra hydra-text-scale (:timeout 4)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+
+(rune/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale text")
+  "gs" 'magit-status
+  )
+
+(use-package helpful
+  :bind
+  ([remap describe-command] . helpful-command)
+  ([remap describe-key] . helpful-key))
+
+;; setup avy like my hop.nvim setup
+(use-package avy)
+(evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
+
+;; quick keymaps from vim
+(evil-define-key 'normal 'global ",b" 'switch-to-buffer)
+(evil-define-key 'normal 'global ",f" 'find-file)
+(evil-define-key 'normal 'global ",o" 'recentf-open-files)
+(evil-define-key 'normal 'global ",a" 'deadgrep)
+
+(defun self/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (setq
+    ;; Edit settings
+    org-auto-align-tags nil
+    org-tags-column 0
+    org-catch-invisible-edits 'show-and-error
+    org-special-ctrl-a/e t
+    org-insert-heading-respect-content t
+
+    ;; Org styling
+    org-pretty-entities t
+    org-ellipsis "…"
+
+    ;; Agenda styling
+    org-agenda-block-separator ?─
+    org-agenda-time-grid
+    '((daily today require-timed)
+      (800 1000 1200 1400 1600 1800 2000)
+      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+    org-agenda-current-time-string
+    "⭠ now ─────────────────────────────────────────────────")
+
+  ;; override variable pitch fonts selectively
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  )
+
+(use-package org
+  :hook (org-mode . self/org-mode-setup)
+  :config
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-into-drawer t)
+  (setq org-directory "~/Documents/org/")
+  (setq org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
+  (setq org-archive-location "~/Documents/org/archive")
+
+  (setq org-todo-keywords
+    '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
+  )
+
+(defun self/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . self/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-l")  ;; TODO set this up so it's =SPC l=
+  :config
+  (lsp-enable-which-key-integration t)
+  :custom
+  ;; TODO why isn't this working?? https://github.com/emacs-lsp/lsp-mode/issues/1223#issuecomment-586674535
+  (lsp-signature-auto-activate nil))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (define-key evil-normal-state-map (kbd "gh") 'lsp-ui-doc-show)
+  :custom
+  (lsp-ui-doc-position 'top)) ;; can be top, bottom, or at-point
+
+
+;; Company mode configuration ------------------------------------------------------
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+;; lsp leader keys
+;; (rune/leader-keys
+;;     "la" '(projectile--find-file :which-key "code action"))
+
+;; Langauge configuration ------------------------------------------------------
+(use-package typescript-mode
+  :mode "\\.ts\\'\\|\\.tsx\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+(use-package tree-sitter
+  :ensure t
+  :hook ((typescript-mode . tree-sitter-hl-mode)
+         (typescript-tsx-mode . tree-sitter-hl-mode)))
+
+(use-package tree-sitter-langs
+  :ensure t
+  :after tree-sitter
+  :config
+  (tree-sitter-require 'tsx)
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
+
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+(use-package magit)
+
+;; TODO what does this do?
 (put 'scroll-left 'disabled nil)

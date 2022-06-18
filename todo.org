@@ -29,7 +29,6 @@ CLOCK: [2022-06-13 Mon 13:03]--[2022-06-13 Mon 14:09] =>  1:06
 :LOGBOOK:
 - State "DONE"       from "IN-PROGRESS" [2022-04-15 Fri 18:17]
 :END:
-*** TODO Make org faster/simpler config?
 *** DONE larger default font
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2022-04-15 Fri 18:18]
@@ -47,8 +46,8 @@ CLOCK: [2022-06-13 Mon 13:03]--[2022-06-13 Mon 14:09] =>  1:06
 
 * Simplifying config
 ** TODO ~corfu~ in place of ~company~?
-** TODO ~eglot~ in place of ~lsp mode~?
-** TODO ~vundo~ in place of ~unto~-tree?
+** TODO ~eglot~ in place of ~lsp-mode~?
+** TODO ~vundo~ in place of ~undo-tree~?
 
 * Emacs config goes here
 ** A heading
