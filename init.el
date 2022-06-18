@@ -104,11 +104,6 @@
    initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
   (dashboard-setup-startup-hook))
 
-
-
-;; START completions
-
-;; replacing with project.el....
 ;; =C-x p p= to open project switcher
 (use-package projectile
   :diminish projectile-mode
@@ -184,6 +179,12 @@
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
+ ;; Make ESC quit prompts
+ (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+ ;; Since I let evil-mode take over C-u for buffer scrolling, I need to re-bind
+ ;; the universal-argument command to another key sequence
+ (global-set-key (kbd "C-M-u") 'universal-argument)
+
 (use-package evil-collection
   :after evil
   :config
@@ -212,6 +213,11 @@
 (use-package evil-commentary
   :config (evil-commentary-mode))
 
+(global-set-key (kbd "C-h") nil)
+(global-set-key (kbd "C-j") nil)
+(global-set-key (kbd "C-k") nil)
+(global-set-key (kbd "C-l") nil)
+
 (evil-define-key 'normal 'global (kbd "C-s") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
@@ -221,17 +227,6 @@
 (evil-define-key 'normal 'global (kbd "C-w C-j") 'evil-window-down)
 (evil-define-key 'normal 'global (kbd "C-w C-k") 'evil-window-up)
 (evil-define-key 'normal 'global (kbd "C-w C-l") 'evil-window-right)
-
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;; Since I let evil-mode take over C-u for buffer scrolling, I need to re-bind
-;; the universal-argument command to another key sequence
-(global-set-key (kbd "C-M-u") 'universal-argument)
-;; stop C-<direction> keys doing weird stuff, none of it is very useful to me, and I'm used to vims way
-(global-set-key (kbd "C-h") nil)
-(global-set-key (kbd "C-j") nil)
-(global-set-key (kbd "C-k") nil)
-(global-set-key (kbd "C-l") nil)
 
 (use-package which-key
   :init (which-key-mode)
@@ -282,25 +277,25 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (setq
-    ;; Edit settings
-    org-auto-align-tags nil
-    org-tags-column 0
-    org-catch-invisible-edits 'show-and-error
-    org-special-ctrl-a/e t
-    org-insert-heading-respect-content t
+   ;; Edit settings
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   org-special-ctrl-a/e t
+   org-insert-heading-respect-content t
 
-    ;; Org styling
-    org-pretty-entities t
-    org-ellipsis "…"
+   ;; Org styling
+   org-pretty-entities t
+   org-ellipsis "…"
 
-    ;; Agenda styling
-    org-agenda-block-separator ?─
-    org-agenda-time-grid
-    '((daily today require-timed)
-      (800 1000 1200 1400 1600 1800 2000)
-      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-    org-agenda-current-time-string
-    "⭠ now ─────────────────────────────────────────────────")
+   ;; Agenda styling
+   org-agenda-block-separator ?─
+   org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+   org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────")
 
   ;; override variable pitch fonts selectively
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -321,8 +316,38 @@
   (setq org-archive-location "~/Documents/org/archive")
 
   (setq org-todo-keywords
-    '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
+        '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
   )
+
+(with-eval-after-load 'org
+  (add-to-list
+   'org-src-lang-modes '("plantuml" . plantuml))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (js . t)
+     (shell . t)
+     (python . t)
+     (plantuml . t)))
+
+  (push '("conf-unix" . conf-unix) org-src-lang-modes))
+
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("js" . "src js")))
+
+(defun efs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . efs/org-mode-visual-fill))
 
 (defun jdr/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -388,8 +413,17 @@
 (use-package nix-mode
   :mode "\\.nix\\'")
 
+(use-package plantuml-mode)
+(setq plantuml-executable-path "/usr/bin/plantuml")
+(setq org-plantuml-executable-path "/usr/bin/plantuml")
+(setq plantuml-default-exec-mode 'executable)
+(setq org-plantuml-exec-mode 'executable)
+
 (use-package magit
   :commands magit-status)
+
+(use-package vterm
+    :ensure t)
 
 (use-package yasnippet
   :config
