@@ -29,9 +29,7 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'jdr/org-babel-tangle-config)))
 
 ;; theme
-(setq modus-themes-mode-line '(accented 3d padded)
-      x-underline-at-descent-line t
-      modus-themes-bold-constructs t
+(setq modus-themes-bold-constructs t
       modus-themes-italic-constructs t
       modus-themes-fringes 'subtle
       modus-themes-tabs-accented t
@@ -73,7 +71,6 @@
 ;; base font setup 
 (setq font-use-system-font t)
 (set-face-attribute 'default nil :height 110)
-(recentf-mode t)
 
 (setq user-emacs-directory "~/.cache/emacs")
 (use-package no-littering)
@@ -82,13 +79,29 @@
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
+(recentf-mode t)
+(setq recentf-max-saved-items 50)
+
 ;; Enable line numbering in `prog-mode'
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+(use-package helpful
+  :bind
+  ([remap describe-command] . helpful-command)
+  ([remap describe-key] . helpful-key)
+  :config
+  (global-set-key (kbd "C-c C-d") #'helpful-at-point))
 
 ;; modes with variable width font (docs + help)
 (dolist (mode '(help-mode-hook
                 helpful-mode-hook))
   (add-hook mode (lambda () (variable-pitch-mode))))
+
+(use-package evil-goggles
+  :ensure t
+  :config
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces))
 
 (use-package dashboard
   :ensure t
@@ -249,13 +262,6 @@
   "hf" 'describe-function
   "hv" 'describe-variable
   "hk" 'describe-key)
-
-(use-package helpful
-  :bind
-  ([remap describe-command] . helpful-command)
-  ([remap describe-key] . helpful-key)
-  :config
-  (global-set-key (kbd "C-c C-d") #'helpful-at-point))
 
 ;; setup avy like my hop.nvim setup
 (use-package avy

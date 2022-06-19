@@ -47,9 +47,7 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
 ** Theme
 #+begin_src emacs-lisp
   ;; theme
-  (setq modus-themes-mode-line '(accented 3d padded)
-        x-underline-at-descent-line t
-        modus-themes-bold-constructs t
+  (setq modus-themes-bold-constructs t
         modus-themes-italic-constructs t
         modus-themes-fringes 'subtle
         modus-themes-tabs-accented t
@@ -94,7 +92,6 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
   ;; base font setup 
   (setq font-use-system-font t)
   (set-face-attribute 'default nil :height 110)
-  (recentf-mode t)
 
   (setq user-emacs-directory "~/.cache/emacs")
   (use-package no-littering)
@@ -103,13 +100,36 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
+  (recentf-mode t)
+  (setq recentf-max-saved-items 50)
+
   ;; Enable line numbering in `prog-mode'
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+#+end_src
+
+** Help
+#+begin_src emacs-lisp
+  (use-package helpful
+    :bind
+    ([remap describe-command] . helpful-command)
+    ([remap describe-key] . helpful-key)
+    :config
+    (global-set-key (kbd "C-c C-d") #'helpful-at-point))
 
   ;; modes with variable width font (docs + help)
   (dolist (mode '(help-mode-hook
                   helpful-mode-hook))
     (add-hook mode (lambda () (variable-pitch-mode))))
+#+end_src
+
+** Pulse on actions
+This pulses on most text changes, at first glance I thought it would be too much but so far I'm really liking it. Even if I end up turning it down or off, it would be awesome to have on while pairing.
+#+begin_src emacs-lisp
+  (use-package evil-goggles
+    :ensure t
+    :config
+    (evil-goggles-mode)
+    (evil-goggles-use-diff-faces))
 #+end_src
 
 * Project managements stuff
@@ -138,7 +158,6 @@ TODO can I ditch =projectile= for =project.el=?
     ;; NOTE: Set this to the folder where you keep your Git repos!
     (setq projectile-project-search-path '("nixfiles" "~/code" "~/code/msh"))
     (setq projectile-switch-project-action #'projectile-dired))
-
 #+end_src
 
 * Minibuffer completions
@@ -297,13 +316,6 @@ Removes =C-{j,l,k}= because they didn't do anything I used, removes =C-h= for co
     "hf" 'describe-function
     "hv" 'describe-variable
     "hk" 'describe-key)
-
-  (use-package helpful
-    :bind
-    ([remap describe-command] . helpful-command)
-    ([remap describe-key] . helpful-key)
-    :config
-    (global-set-key (kbd "C-c C-d") #'helpful-at-point))
 
   ;; setup avy like my hop.nvim setup
   (use-package avy
