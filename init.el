@@ -11,7 +11,7 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
+;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -19,14 +19,14 @@
 (setq use-package-always-ensure t)
 
 ;; Automatically tangle our Emacs.org config file when we save it
-(defun jdr/org-babel-tangle-config ()
+(defun jdr/org-babel-tangle ()
   (when (string-equal (file-name-directory buffer-file-name)
                       (file-name-directory user-init-file))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'jdr/org-babel-tangle-config)))
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'jdr/org-babel-tangle)))
 
 ;; theme
 (setq modus-themes-bold-constructs t
@@ -72,7 +72,7 @@
 (setq font-use-system-font t)
 (set-face-attribute 'default nil :height 110)
 
-(setq user-emacs-directory "~/.cache/emacs")
+;; (setq user-emacs-directory "~/.cache/emacs")
 (use-package no-littering)
 ;; no-littering doesn't set this by default so we must place
 ;; auto save files in the same path as it uses for sessions
@@ -170,20 +170,16 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package undo-tree
-  :init
-  (global-undo-tree-mode 1))
-
 (use-package evil
   :init
+  (setq evil-undo-system 'undo-redo)
   (setq evil-want-integration t)
-  (setq evil-want-keybinding nil) ; may not be as good/consistent so turned off TODO is it worth it?
+  (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
-  (setq evil-undo-system 'undo-tree)
   (setq evil-want-Y-yank-to-eol t)
   :config
   (evil-mode 1)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state) ; emacs convention, reset/return to "normal mode"
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
 
   ;; Use visual line motions even outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
@@ -192,11 +188,11 @@
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
- ;; Make ESC quit prompts
- (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
- ;; Since I let evil-mode take over C-u for buffer scrolling, I need to re-bind
- ;; the universal-argument command to another key sequence
- (global-set-key (kbd "C-M-u") 'universal-argument)
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; Since I let evil-mode take over C-u for buffer scrolling, I need to re-bind
+;; the universal-argument command to another key sequence
+(global-set-key (kbd "C-M-u") 'universal-argument)
 
 (use-package evil-collection
   :after evil
@@ -225,6 +221,9 @@
 
 (use-package evil-commentary
   :config (evil-commentary-mode))
+
+(use-package vundo
+  :ensure t)
 
 (global-set-key (kbd "C-h") nil)
 (global-set-key (kbd "C-j") nil)
@@ -259,9 +258,9 @@
 
 (rune/leader-keys
   "gs" 'magit-status
-  "hf" 'describe-function
-  "hv" 'describe-variable
-  "hk" 'describe-key)
+  "hf" 'helpful-function
+  "hv" 'helpful-variable
+  "hk" 'helpful-key)
 
 ;; setup avy like my hop.nvim setup
 (use-package avy
@@ -429,10 +428,10 @@
   :commands magit-status)
 
 (use-package vterm
-    :ensure t)
+  :ensure t)
 
-(use-package yasnippet
-  :config
-  (yas-global-mode 1)
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-)
+;; (use-package yasnippet
+;;   :config
+;;   (yas-global-mode 1)
+;;   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+;; )
