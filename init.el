@@ -103,20 +103,6 @@
   (evil-goggles-mode)
   (evil-goggles-use-diff-faces))
 
-(use-package dashboard
-  :ensure t
-  :config
-  (setq
-   dashboard-startup-banner 'logo
-   dashboard-banner-logo-title nil
-   dashboard-set-footer nil
-   dashboard-items '((projects  . 5)
-                     (recents . 5)
-                     (agenda . 5))
-   ;; show dashboard in new frames (i.e. when emacs server already running)
-   initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  (dashboard-setup-startup-hook))
-
 ;; =C-x p p= to open project switcher
 (use-package projectile
   :diminish projectile-mode
