@@ -310,15 +310,20 @@
         '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
   )
 
+(use-package mermaid-mode)
+(use-package ob-mermaid)
+(setq ob-mermaid-cli-path "~/.yarn/bin/mmdc")
+
 (with-eval-after-load 'org
-  (add-to-list
-   'org-src-lang-modes '("plantuml" . plantuml))
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+  (add-to-list 'org-src-lang-modes '("javascript" . js))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (js . t)
      (shell . t)
      (python . t)
+     (mermaid . t)
      (plantuml . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))

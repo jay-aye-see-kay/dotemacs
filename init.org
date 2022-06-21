@@ -371,15 +371,20 @@ Removes =C-{j,l,k}= because they didn't do anything I used, removes =C-h= for co
 
 ** Org babel
 #+begin_src emacs-lisp
+  (use-package mermaid-mode)
+  (use-package ob-mermaid)
+  (setq ob-mermaid-cli-path "~/.yarn/bin/mmdc")
+
   (with-eval-after-load 'org
-    (add-to-list
-     'org-src-lang-modes '("plantuml" . plantuml))
+    (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+    (add-to-list 'org-src-lang-modes '("javascript" . js))
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((emacs-lisp . t)
        (js . t)
        (shell . t)
        (python . t)
+       (mermaid . t)
        (plantuml . t)))
 
     (push '("conf-unix" . conf-unix) org-src-lang-modes))
@@ -398,7 +403,7 @@ Org Mode’s structure templates feature enables you to quickly insert code bloc
     (add-to-list 'org-structure-template-alist '("js" . "src js")))
 #+end_src
 
-** Org structured templates
+** Org visual tweaks
 #+begin_src emacs-lisp
   (defun efs/org-mode-visual-fill ()
     (setq visual-fill-column-width 100
