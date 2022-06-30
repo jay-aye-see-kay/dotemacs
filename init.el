@@ -28,7 +28,6 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'jdr/org-babel-tangle)))
 
-;; theme
 (setq modus-themes-bold-constructs t
       modus-themes-italic-constructs t
       modus-themes-fringes 'subtle
@@ -99,19 +98,12 @@
 
 (use-package evil-goggles
   :ensure t
+  :after evil
   :config
   (evil-goggles-mode)
   (evil-goggles-use-diff-faces))
 
-;; =C-x p p= to open project switcher
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :bind-keymap ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (setq projectile-project-search-path '("nixfiles" "~/code" "~/code/msh"))
-  (setq projectile-switch-project-action #'projectile-dired))
+;;
 
 (use-package vertico
   :init
@@ -156,13 +148,17 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
+(use-package vundo
+  :config
+  (setq vundo-glyph-alist vundo-unicode-symbols))
+
 (use-package evil
-  :init
-  (setq evil-undo-system 'undo-redo)
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-Y-yank-to-eol t)
+  :ensure t
+  :custom
+  (evil-want-keybinding nil)
+  (evil-want-C-u-scroll t)
+  (evil-undo-system 'undo-redo)
+  (evil-want-Y-yank-to-eol t)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -171,8 +167,7 @@
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
+  (evil-set-initial-state 'messages-buffer-mode 'normal))
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -182,11 +177,13 @@
 
 (use-package evil-collection
   :after evil
+  :ensure t
   :config
   (evil-collection-init))
 
 (use-package evil-numbers
   :after evil
+  :ensure t
   :config
   (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
   (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
@@ -202,10 +199,13 @@
 
 (use-package evil-surround
   :ensure t
+  :after evil
   :config
   (global-evil-surround-mode 1))
 
 (use-package evil-commentary
+  :ensure t
+  :after evil
   :config (evil-commentary-mode))
 
 (use-package vundo
@@ -250,6 +250,7 @@
 
 ;; setup avy like my hop.nvim setup
 (use-package avy
+  :after evil
   :config
   (evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
 )

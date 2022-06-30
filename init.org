@@ -46,7 +46,6 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
 
 ** Theme
 #+begin_src emacs-lisp
-  ;; theme
   (setq modus-themes-bold-constructs t
         modus-themes-italic-constructs t
         modus-themes-fringes 'subtle
@@ -127,6 +126,7 @@ This pulses on most text changes, at first glance I thought it would be too much
 #+begin_src emacs-lisp
   (use-package evil-goggles
     :ensure t
+    :after evil
     :config
     (evil-goggles-mode)
     (evil-goggles-use-diff-faces))
@@ -134,16 +134,9 @@ This pulses on most text changes, at first glance I thought it would be too much
 
 * Project managements stuff
 TODO can I ditch =projectile= for =project.el=?
+=C-x p p= to open project switcher
 #+begin_src emacs-lisp
-  ;; =C-x p p= to open project switcher
-  (use-package projectile
-    :diminish projectile-mode
-    :config (projectile-mode)
-    :bind-keymap ("C-c p" . projectile-command-map)
-    :init
-    ;; NOTE: Set this to the folder where you keep your Git repos!
-    (setq projectile-project-search-path '("nixfiles" "~/code" "~/code/msh"))
-    (setq projectile-switch-project-action #'projectile-dired))
+  ;; 
 #+end_src
 
 * Minibuffer completions
@@ -199,13 +192,17 @@ TODO switch company for corfu?
 ** Evil core
 This section sets up evil behaving enough like vanilla vim for me
 #+begin_src emacs-lisp
+  (use-package vundo
+    :config
+    (setq vundo-glyph-alist vundo-unicode-symbols))
+
   (use-package evil
-    :init
-    (setq evil-undo-system 'undo-redo)
-    (setq evil-want-integration t)
-    (setq evil-want-keybinding nil)
-    (setq evil-want-C-u-scroll t)
-    (setq evil-want-Y-yank-to-eol t)
+    :ensure t
+    :custom
+    (evil-want-keybinding nil)
+    (evil-want-C-u-scroll t)
+    (evil-undo-system 'undo-redo)
+    (evil-want-Y-yank-to-eol t)
     :config
     (evil-mode 1)
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -214,8 +211,7 @@ This section sets up evil behaving enough like vanilla vim for me
     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
     (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-    (evil-set-initial-state 'messages-buffer-mode 'normal)
-    (evil-set-initial-state 'dashboard-mode 'normal))
+    (evil-set-initial-state 'messages-buffer-mode 'normal))
 
   ;; Make ESC quit prompts
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -229,11 +225,13 @@ All the additional evil packages that are basically required
 #+begin_src emacs-lisp
   (use-package evil-collection
     :after evil
+    :ensure t
     :config
     (evil-collection-init))
 
   (use-package evil-numbers
     :after evil
+    :ensure t
     :config
     (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
     (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
@@ -249,10 +247,13 @@ All the additional evil packages that are basically required
 
   (use-package evil-surround
     :ensure t
+    :after evil
     :config
     (global-evil-surround-mode 1))
 
   (use-package evil-commentary
+    :ensure t
+    :after evil
     :config (evil-commentary-mode))
 
   (use-package vundo
@@ -304,6 +305,7 @@ Removes =C-{j,l,k}= because they didn't do anything I used, removes =C-h= for co
 
   ;; setup avy like my hop.nvim setup
   (use-package avy
+    :after evil
     :config
     (evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
   )
@@ -398,7 +400,7 @@ Org Mode’s structure templates feature enables you to quickly insert code bloc
     (add-to-list 'org-structure-template-alist '("js" . "src js")))
 #+end_src
 
-** Org structured templates
+** Max width and center org files
 #+begin_src emacs-lisp
   (defun efs/org-mode-visual-fill ()
     (setq visual-fill-column-width 100
