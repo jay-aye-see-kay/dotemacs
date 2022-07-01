@@ -514,18 +514,40 @@ Currently only using this in org source blocks, and it's not working yet. But wi
 
 * VCS and Magit
 #+begin_src emacs-lisp
-  (use-package magit
-    :commands magit-status)
+  (use-package magit)
 #+end_src
 
 * Terminals
 ** TODO setup eshell
-** TODO make colorscheme work in light mode, or make vterm buffers dark mode?
 ** Vterm
-Vterm is nice as is
+Setup fish colors so they match my current theme (modus-operandi), this is quite brittle because it depends on me using fish and my current emacs theme, but it works okay for now. Colors were calculated using functions from [[https://github.com/snyball/emacs-fish-colors][synball/emacs-fish-colors.]]
 #+begin_src emacs-lisp
   (use-package vterm
-    :ensure t)
+    :custom
+    (vterm-environment
+     '("fish_term24bit=1"
+       "fish_color_autosuggestion=#505050"
+       "fish_color_cancel=#a60000"
+       "fish_color_command=#5317ac"
+       "fish_color_comment=#505050"
+       "fish_color_cwd=#000000"
+       "fish_color_cwd_root=#000000"
+       "fish_color_end=#000000"
+       "fish_color_error=#a60000"
+       "fish_color_escape=#000000"
+       "fish_color_history_current=#000000"
+       "fish_color_host=#000000"
+       "fish_color_host_remote=#000000"
+       "fish_color_match=#000000"
+       "fish_color_normal=#000000"
+       "fish_color_operator=#721045"
+       "fish_color_param=#000000"
+       "fish_color_quote=#2544bb"
+       "fish_color_redirection=#721045"
+       "fish_color_search_match=#000000"
+       "fish_color_selection=#000000"
+       "fish_color_status=#000000"
+       "fish_color_user=#000000")))
 #+end_src
 
 * Snippets

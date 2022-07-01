@@ -409,11 +409,34 @@
 (setq plantuml-default-exec-mode 'executable)
 (setq org-plantuml-exec-mode 'executable)
 
-(use-package magit
-  :commands magit-status)
+(use-package magit)
 
 (use-package vterm
-  :ensure t)
+  :custom
+  (vterm-environment
+   '("fish_term24bit=1"
+     "fish_color_autosuggestion=#505050"
+     "fish_color_cancel=#a60000"
+     "fish_color_command=#5317ac"
+     "fish_color_comment=#505050"
+     "fish_color_cwd=#000000"
+     "fish_color_cwd_root=#000000"
+     "fish_color_end=#000000"
+     "fish_color_error=#a60000"
+     "fish_color_escape=#000000"
+     "fish_color_history_current=#000000"
+     "fish_color_host=#000000"
+     "fish_color_host_remote=#000000"
+     "fish_color_match=#000000"
+     "fish_color_normal=#000000"
+     "fish_color_operator=#721045"
+     "fish_color_param=#000000"
+     "fish_color_quote=#2544bb"
+     "fish_color_redirection=#721045"
+     "fish_color_search_match=#000000"
+     "fish_color_selection=#000000"
+     "fish_color_status=#000000"
+     "fish_color_user=#000000")))
 
 (use-package yasnippet
   :config
