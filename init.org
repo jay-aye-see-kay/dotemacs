@@ -8,6 +8,39 @@ By default all variables are dynamically looked up in one global table. This cre
   ;; -*- lexical-binding: t; -*-
 #+end_src
 
+** Startup performance
+Measure and tweak startup performance.
+#+begin_src emacs-lisp
+  ;; The default is 800 kilobytes.  Measured in bytes.
+  (setq gc-cons-threshold (* 100 1000 1000))
+
+  (defun jdr/display-startup-time ()
+    (message "Emacs loaded in %s with %d garbage collections."
+             (format "%.2f seconds"
+                     (float-time
+                      (time-subtract after-init-time before-init-time)))
+             gcs-done))
+
+  (add-hook 'emacs-startup-hook #'jdr/display-startup-time)
+#+end_src
+
+** Basic UI setup
+#+begin_src emacs-lisp
+  ;; visual stuff
+  (setq inhibit-startup-message t)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (set-default 'truncate-lines t)
+
+  ;; base font setup
+  (setq font-use-system-font t)
+  (set-face-attribute 'default nil :height 110)
+
+  ;; Enable line numbering in `prog-mode'
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+#+end_src
+
 ** Package setup
 For now let emacs manage it's own plugins, even on nix, as my setup gets more mature I'll bring it let nix manage plugins so it's faster and more deterministic.
 #+begin_src emacs-lisp
@@ -65,6 +98,16 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
   (load-theme 'modus-operandi t)
 #+end_src
 
+** Keeping =.emacs.d= clean
+Use the [[https://github.com/emacscollective/no-littering/blob/master/no-littering.el][no-littering]] package to keep the Emacs configuration folder clean! It knows about a wide variety of variables for built in Emacs features as well as those from community packages so it can be much easier than finding and setting these variables manually.
+#+begin_src emacs-lisp
+  (use-package no-littering)
+  ;; no-littering doesn't set this by default so we must place
+  ;; auto save files in the same path as it uses for sessions
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+#+end_src
+
 ** Misc other setup stuff
 #+begin_src emacs-lisp
   ;; NOTE: The first time you load your configuration on a new machine, you'll
@@ -78,32 +121,8 @@ Auto tangle any org files located in my =.emacs.d= directory, not a perfect hook
     :ensure t
     :init (doom-modeline-mode 1))
 
-  ;; The default is 800 kilobytes.  Measured in bytes.
-  (setq gc-cons-threshold (* 50 1000 1000))
-
-  ;; visual stuff
-  (setq inhibit-startup-message t)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-  (set-default 'truncate-lines t)
-
-  ;; base font setup 
-  (setq font-use-system-font t)
-  (set-face-attribute 'default nil :height 110)
-
-  ;; (setq user-emacs-directory "~/.cache/emacs")
-  (use-package no-littering)
-  ;; no-littering doesn't set this by default so we must place
-  ;; auto save files in the same path as it uses for sessions
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
   (recentf-mode t)
   (setq recentf-max-saved-items 50)
-
-  ;; Enable line numbering in `prog-mode'
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 
 ** Help
@@ -132,7 +151,15 @@ This pulses on most text changes, at first glance I thought it would be too much
     (evil-goggles-use-diff-faces))
 #+end_src
 
-* Project managements stuff
+** Undo system
+Use the built in undo-redo system, and the basic =vundo= package to visualise the undo tree.
+#+begin_src emacs-lisp
+  (use-package vundo
+    :config
+    (setq vundo-glyph-alist vundo-unicode-symbols))
+#+end_src
+
+* Project management stuff
 TODO can I ditch =projectile= for =project.el=?
 =C-x p p= to open project switcher
 #+begin_src emacs-lisp
@@ -192,10 +219,6 @@ TODO switch company for corfu?
 ** Evil core
 This section sets up evil behaving enough like vanilla vim for me
 #+begin_src emacs-lisp
-  (use-package vundo
-    :config
-    (setq vundo-glyph-alist vundo-unicode-symbols))
-
   (use-package evil
     :ensure t
     :custom
@@ -367,7 +390,10 @@ Removes =C-{j,l,k}= because they didn't do anything I used, removes =C-h= for co
     (setq org-archive-location "~/Documents/org/archive")
 
     (setq org-todo-keywords
-          '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
+          '((sequence
+             "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
+             "|" "DONE(d!)" "CANCELLED(c!)"
+             )))
     )
 #+end_src
 
@@ -402,13 +428,13 @@ Org Mode’s structure templates feature enables you to quickly insert code bloc
 
 ** Max width and center org files
 #+begin_src emacs-lisp
-  (defun efs/org-mode-visual-fill ()
+  (defun jdr/org-mode-visual-fill ()
     (setq visual-fill-column-width 100
           visual-fill-column-center-text t)
     (visual-fill-column-mode 1))
 
   (use-package visual-fill-column
-    :hook (org-mode . efs/org-mode-visual-fill))
+    :hook (org-mode . jdr/org-mode-visual-fill))
 #+end_src
 
 * Languages

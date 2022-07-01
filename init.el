@@ -1,5 +1,31 @@
 ;; -*- lexical-binding: t; -*-
 
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 100 1000 1000))
+
+(defun jdr/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'jdr/display-startup-time)
+
+;; visual stuff
+(setq inhibit-startup-message t)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(set-default 'truncate-lines t)
+
+;; base font setup
+(setq font-use-system-font t)
+(set-face-attribute 'default nil :height 110)
+
+;; Enable line numbering in `prog-mode'
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
 ;; Initialize package sources
 (require 'package)
 
@@ -46,6 +72,12 @@
 ;; Load the light theme by default
 (load-theme 'modus-operandi t)
 
+(use-package no-littering)
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
 ;; NOTE: The first time you load your configuration on a new machine, you'll
 ;; need to run the following command interactively so that mode line icons
 ;; display correctly:
@@ -57,32 +89,8 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
-;; visual stuff
-(setq inhibit-startup-message t)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-(set-default 'truncate-lines t)
-
-;; base font setup 
-(setq font-use-system-font t)
-(set-face-attribute 'default nil :height 110)
-
-;; (setq user-emacs-directory "~/.cache/emacs")
-(use-package no-littering)
-;; no-littering doesn't set this by default so we must place
-;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
 (recentf-mode t)
 (setq recentf-max-saved-items 50)
-
-;; Enable line numbering in `prog-mode'
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (use-package helpful
   :bind
@@ -102,6 +110,10 @@
   :config
   (evil-goggles-mode)
   (evil-goggles-use-diff-faces))
+
+(use-package vundo
+  :config
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 ;;
 
@@ -147,10 +159,6 @@
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
-
-(use-package vundo
-  :config
-  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (use-package evil
   :ensure t
@@ -308,7 +316,10 @@
   (setq org-archive-location "~/Documents/org/archive")
 
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
+        '((sequence
+           "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
+           "|" "DONE(d!)" "CANCELLED(c!)"
+           )))
   )
 
 (with-eval-after-load 'org
@@ -333,13 +344,13 @@
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
   (add-to-list 'org-structure-template-alist '("js" . "src js")))
 
-(defun efs/org-mode-visual-fill ()
+(defun jdr/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
+  :hook (org-mode . jdr/org-mode-visual-fill))
 
 (defun jdr/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
