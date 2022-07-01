@@ -278,24 +278,11 @@ All the additional evil packages that are basically required
     :ensure t
     :after evil
     :config (evil-commentary-mode))
-
-  (use-package vundo
-    :ensure t)
 #+end_src
 
 ** Evil window movements
-Removes =C-{j,l,k}= because they didn't do anything I used, removes =C-h= for consistancy (even though it's super useful). All the =C-h= keymaps are also available under =F1= anyway, and I've remapped the ones I use frequently under =SPC h= too. Not very Emacs-y of me, but I'm really used to these window movement shortcuts.
+Make evil window movements less strict, by default they're only =C-w {h,j,k,l}=, so if you don't let go of =ctrl= fast enough it doesn't work. This also aligns with vim's default behaviour.
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-h") nil)
-  (global-set-key (kbd "C-j") nil)
-  (global-set-key (kbd "C-k") nil)
-  (global-set-key (kbd "C-l") nil)
-
-  (evil-define-key 'normal 'global (kbd "C-s") 'save-buffer)
-  (evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
-  (evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
-  (evil-define-key 'normal 'global (kbd "C-k") 'evil-window-up)
-  (evil-define-key 'normal 'global (kbd "C-l") 'evil-window-right)
   (evil-define-key 'normal 'global (kbd "C-w C-h") 'evil-window-left)
   (evil-define-key 'normal 'global (kbd "C-w C-j") 'evil-window-down)
   (evil-define-key 'normal 'global (kbd "C-w C-k") 'evil-window-up)
@@ -543,10 +530,10 @@ Vterm is nice as is
 
 * Snippets
 #+begin_src emacs-lisp
-  ;; (use-package yasnippet
-  ;;   :config
-  ;;   (yas-global-mode 1)
-  ;;   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-  ;; )
+  (use-package yasnippet
+    :config
+    (yas-global-mode 1)
+    (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  )
 #+end_src
 

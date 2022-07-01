@@ -216,19 +216,6 @@
   :after evil
   :config (evil-commentary-mode))
 
-(use-package vundo
-  :ensure t)
-
-(global-set-key (kbd "C-h") nil)
-(global-set-key (kbd "C-j") nil)
-(global-set-key (kbd "C-k") nil)
-(global-set-key (kbd "C-l") nil)
-
-(evil-define-key 'normal 'global (kbd "C-s") 'save-buffer)
-(evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
-(evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
-(evil-define-key 'normal 'global (kbd "C-k") 'evil-window-up)
-(evil-define-key 'normal 'global (kbd "C-l") 'evil-window-right)
 (evil-define-key 'normal 'global (kbd "C-w C-h") 'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-w C-j") 'evil-window-down)
 (evil-define-key 'normal 'global (kbd "C-w C-k") 'evil-window-up)
@@ -428,8 +415,8 @@
 (use-package vterm
   :ensure t)
 
-;; (use-package yasnippet
-;;   :config
-;;   (yas-global-mode 1)
-;;   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-;; )
+(use-package yasnippet
+  :config
+  (yas-global-mode 1)
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+)
