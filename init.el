@@ -351,8 +351,16 @@
   :config
   (lsp-enable-which-key-integration t)
   :custom
-  ;; TODO why isn't this working?? https://github.com/emacs-lsp/lsp-mode/issues/1223#issuecomment-586674535
-  (lsp-signature-auto-activate nil))
+  (lsp-eldoc-enable-hover nil)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-diagnostics nil)
+  (lsp-ui-sideline-show-symbol t)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-enable-diagnostics nil))
+
+
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -393,7 +401,6 @@
   (tree-sitter-require 'tsx)
   (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
 
-;; Langauge configuration ------------------------------------------------------
 (use-package typescript-mode
   :mode "\\.ts\\'\\|\\.tsx\\'"
   :hook (typescript-mode . lsp-deferred)
