@@ -260,21 +260,7 @@
 (evil-define-key 'normal 'global ",x" 'execute-extended-command)
 
 (defun jdr/org-mode-setup ()
-  (org-indent-mode)
-  (variable-pitch-mode 1)
-  (visual-line-mode 1)
   (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
-
-   ;; Org styling
-   org-pretty-entities t
-   org-ellipsis "…"
-
    ;; Agenda styling
    org-agenda-block-separator ?─
    org-agenda-time-grid
@@ -285,6 +271,7 @@
    "⭠ now ─────────────────────────────────────────────────")
 
   ;; override variable pitch fonts selectively
+  (variable-pitch-mode 1)
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
@@ -295,19 +282,25 @@
 
 (use-package org
   :hook (org-mode . jdr/org-mode-setup)
+  :custom
+  (org-auto-align-tags nil)
+  (org-tags-column 0)
+  (org-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+  (org-insert-heading-respect-content t)
+  (org-pretty-entities t)
+  (org-ellipsis "…")
+  (org-agenda-start-with-log-mode t)
+  (org-log-into-drawer t)
+  (org-directory "~/Documents/org/")
+  (org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
+  (org-archive-location "~/Documents/org/archive")
+  (org-todo-keywords
+   '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
+               "|" "DONE(d!)" "CANCELLED(c!)")))
   :config
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-into-drawer t)
-  (setq org-directory "~/Documents/org/")
-  (setq org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
-  (setq org-archive-location "~/Documents/org/archive")
-
-  (setq org-todo-keywords
-        '((sequence
-           "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
-           "|" "DONE(d!)" "CANCELLED(c!)"
-           )))
-  )
+  (org-indent-mode 1)
+  (visual-line-mode 1))
 
 (with-eval-after-load 'org
   (add-to-list
