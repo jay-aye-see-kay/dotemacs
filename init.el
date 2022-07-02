@@ -395,15 +395,13 @@
 
 (use-package tree-sitter
   :ensure t
-  :hook ((typescript-mode . tree-sitter-hl-mode)
-         (typescript-tsx-mode . tree-sitter-hl-mode)))
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package tree-sitter-langs
   :ensure t
-  :after tree-sitter
-  :config
-  (tree-sitter-require 'tsx)
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
+  :after tree-sitter)
 
 (use-package typescript-mode
   :mode "\\.ts\\'\\|\\.tsx\\'"
