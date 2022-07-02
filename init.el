@@ -115,7 +115,18 @@
   :config
   (setq vundo-glyph-alist vundo-unicode-symbols))
 
-;;
+(defun project-vterm ()
+  "Start a new vterm in project root (based on `project-shell`)"
+  (interactive)
+  (let* ((default-directory (project-root (project-current t)))
+         (default-project-vterm-name (project-prefixed-buffer-name "vterm"))
+         (vterm-buffer (get-buffer default-project-vterm-name)))
+    (if (and vterm-buffer (not current-prefix-arg))
+        (pop-to-buffer-same-window vterm-buffer)
+      (vterm (generate-new-buffer-name default-project-vterm-name)))))
+
+(use-package project
+  :bind (("C-x p t" . project-vterm)))
 
 (use-package vertico
   :init
