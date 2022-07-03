@@ -455,3 +455,10 @@
   (yas-global-mode 1)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 )
+
+;; (setq tab-width 4)
+;; ;; http://xahlee.info/emacs/emacs/whitespace-mode.html
+;; (whitespace-mode)
+;; ;; or
+;; (global-whitespace-mode)
+;; (setq whitespace-style '(face trailing tabs missing-newline-at-eof empty))
