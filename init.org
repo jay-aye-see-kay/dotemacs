@@ -499,6 +499,16 @@ Org Mode’s structure templates feature enables you to quickly insert code bloc
     :after tree-sitter)
 #+end_src
 
+** Formatting
+#+begin_src emacs-lisp
+;; auto-format different source code files extremely intelligently
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
+#+end_src
+
 ** Typescript
 #+begin_src emacs-lisp
   (use-package typescript-mode

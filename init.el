@@ -405,6 +405,12 @@
 (use-package tree-sitter-langs
   :ensure t
   :after tree-sitter)
+;; auto-format different source code files extremely intelligently
+;; https://github.com/radian-software/apheleia
+(use-package apheleia
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
 
 (use-package typescript-mode
   :mode "\\.ts\\'\\|\\.tsx\\'"
