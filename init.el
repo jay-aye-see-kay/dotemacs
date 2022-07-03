@@ -404,7 +404,26 @@
 
 (use-package tree-sitter-langs
   :ensure t
-  :after tree-sitter)
+  :after tree-sitter
+  (tree-sitter-require 'tsx)
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx)))
+
+(use-package evil-textobj-tree-sitter
+  :ensure t
+  :config
+  ;; bind `function.outer`(entire function block) to `f` for use in things like `vaf`, `yaf`
+  (define-key evil-outer-text-objects-map "f"
+    (evil-textobj-tree-sitter-get-textobj "function.outer"))
+
+  ;; bind `function.inner`(function block without name and args) to `f` for use in things like `vif`, `yif`
+  (define-key evil-inner-text-objects-map "f"
+    (evil-textobj-tree-sitter-get-textobj "function.inner"))
+
+  ;; You can also bind multiple items and we will match the first one we can find
+  (define-key evil-outer-text-objects-map "a"
+    (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
+  )
+
 ;; auto-format different source code files extremely intelligently
 ;; https://github.com/radian-software/apheleia
 (use-package apheleia
@@ -413,10 +432,31 @@
   (apheleia-global-mode +1))
 
 (use-package typescript-mode
+  :after tree-sitter
   :mode "\\.ts\\'\\|\\.tsx\\'"
   :hook (typescript-mode . lsp-deferred)
   :config
-  (setq typescript-indent-level 2))
+  (setq typescript-indent-level 2)
+  ;; (define-derived-mode typescriptreact-mode typescript-mode
+  ;;   "TypeScript TSX")
+  (define-derived-mode typescript-tsx-mode typescript-mode "TSX"
+    "Major mode for editing TSX files.")
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode))
+  ;; (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx))
+  )
+
+;; https://github.com/orzechowskid/tsi.el/
+;; great tree-sitter-based indentation for typescript/tsx, css, json
+(use-package tsi
+  :after tree-sitter
+  :quelpa (tsi :fetcher github :repo "orzechowskid/tsi.el")
+  ;; define autoload definitions which when actually invoked will cause package to be loaded
+  :commands (tsi-typescript-mode tsi-json-mode tsi-css-mode)
+  :init
+  (add-hook 'typescript-mode-hook (lambda () (tsi-typescript-mode 1)))
+  (add-hook 'json-mode-hook (lambda () (tsi-json-mode 1)))
+  (add-hook 'css-mode-hook (lambda () (tsi-css-mode 1)))
+  (add-hook 'scss-mode-hook (lambda () (tsi-scss-mode 1))))
 
 (use-package nix-mode
   :mode "\\.nix\\'")
