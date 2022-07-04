@@ -259,17 +259,17 @@
 (use-package avy
   :after evil
   :config
-  (evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
-)
+  (evil-define-key 'normal 'global "s" 'evil-avy-goto-char))
+
+;; quick keymaps like my vim setup
+(rune/quick-keys
+  "b" 'switch-to-buffer
+  "f" 'find-file
+  "o" 'recentf-open-files
+  "a" 'deadgrep
+  "x" 'execute-extended-command)
 
 (use-package deadgrep)
-
-;; quick keymaps from vim
-(evil-define-key 'normal 'global ",b" 'switch-to-buffer)
-(evil-define-key 'normal 'global ",f" 'find-file)
-(evil-define-key 'normal 'global ",o" 'recentf-open-files)
-(evil-define-key 'normal 'global ",a" 'deadgrep)
-(evil-define-key 'normal 'global ",x" 'execute-extended-command)
 
 (defun jdr/org-mode-setup ()
   (setq
