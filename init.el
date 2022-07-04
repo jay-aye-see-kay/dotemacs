@@ -293,6 +293,7 @@
 
 (use-package org
   :hook (org-mode . jdr/org-mode-setup)
+  :bind (("C-c l" . org-store-link))
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
