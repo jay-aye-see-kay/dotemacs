@@ -1,5 +1,31 @@
 ;; -*- lexical-binding: t; -*-
 
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 100 1000 1000))
+
+(defun jdr/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'jdr/display-startup-time)
+
+;; visual stuff
+(setq inhibit-startup-message t)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(set-default 'truncate-lines t)
+
+;; base font setup
+(setq font-use-system-font t)
+(set-face-attribute 'default nil :height 110)
+
+;; Enable line numbering in `prog-mode'
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
 ;; Initialize package sources
 (require 'package)
 
@@ -28,7 +54,6 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'jdr/org-babel-tangle)))
 
-;; theme
 (setq modus-themes-bold-constructs t
       modus-themes-italic-constructs t
       modus-themes-fringes 'subtle
@@ -47,6 +72,12 @@
 ;; Load the light theme by default
 (load-theme 'modus-operandi t)
 
+(use-package no-littering)
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
 ;; NOTE: The first time you load your configuration on a new machine, you'll
 ;; need to run the following command interactively so that mode line icons
 ;; display correctly:
@@ -58,32 +89,8 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
-;; visual stuff
-(setq inhibit-startup-message t)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-(set-default 'truncate-lines t)
-
-;; base font setup 
-(setq font-use-system-font t)
-(set-face-attribute 'default nil :height 110)
-
-;; (setq user-emacs-directory "~/.cache/emacs")
-(use-package no-littering)
-;; no-littering doesn't set this by default so we must place
-;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
 (recentf-mode t)
 (setq recentf-max-saved-items 50)
-
-;; Enable line numbering in `prog-mode'
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (use-package helpful
   :bind
@@ -99,19 +106,27 @@
 
 (use-package evil-goggles
   :ensure t
+  :after evil
   :config
   (evil-goggles-mode)
   (evil-goggles-use-diff-faces))
 
-;; =C-x p p= to open project switcher
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :bind-keymap ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (setq projectile-project-search-path '("nixfiles" "~/code" "~/code/msh"))
-  (setq projectile-switch-project-action #'projectile-dired))
+(use-package vundo
+  :config
+  (setq vundo-glyph-alist vundo-unicode-symbols))
+
+(defun project-vterm ()
+  "Start a new vterm in project root (based on `project-shell`)"
+  (interactive)
+  (let* ((default-directory (project-root (project-current t)))
+         (default-project-vterm-name (project-prefixed-buffer-name "vterm"))
+         (vterm-buffer (get-buffer default-project-vterm-name)))
+    (if (and vterm-buffer (not current-prefix-arg))
+        (pop-to-buffer-same-window vterm-buffer)
+      (vterm (generate-new-buffer-name default-project-vterm-name)))))
+
+(use-package project
+  :bind (("C-x p t" . project-vterm)))
 
 (use-package vertico
   :init
@@ -157,12 +172,12 @@
         completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package evil
-  :init
-  (setq evil-undo-system 'undo-redo)
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-Y-yank-to-eol t)
+  :ensure t
+  :custom
+  (evil-want-keybinding nil)
+  (evil-want-C-u-scroll t)
+  (evil-undo-system 'undo-redo)
+  (evil-want-Y-yank-to-eol t)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -171,8 +186,7 @@
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
+  (evil-set-initial-state 'messages-buffer-mode 'normal))
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -182,11 +196,13 @@
 
 (use-package evil-collection
   :after evil
+  :ensure t
   :config
   (evil-collection-init))
 
 (use-package evil-numbers
   :after evil
+  :ensure t
   :config
   (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
   (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
@@ -202,25 +218,15 @@
 
 (use-package evil-surround
   :ensure t
+  :after evil
   :config
   (global-evil-surround-mode 1))
 
 (use-package evil-commentary
+  :ensure t
+  :after evil
   :config (evil-commentary-mode))
 
-(use-package vundo
-  :ensure t)
-
-(global-set-key (kbd "C-h") nil)
-(global-set-key (kbd "C-j") nil)
-(global-set-key (kbd "C-k") nil)
-(global-set-key (kbd "C-l") nil)
-
-(evil-define-key 'normal 'global (kbd "C-s") 'save-buffer)
-(evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
-(evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
-(evil-define-key 'normal 'global (kbd "C-k") 'evil-window-up)
-(evil-define-key 'normal 'global (kbd "C-l") 'evil-window-right)
 (evil-define-key 'normal 'global (kbd "C-w C-h") 'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-w C-j") 'evil-window-down)
 (evil-define-key 'normal 'global (kbd "C-w C-k") 'evil-window-up)
@@ -250,6 +256,7 @@
 
 ;; setup avy like my hop.nvim setup
 (use-package avy
+  :after evil
   :config
   (evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
 )
@@ -264,21 +271,7 @@
 (evil-define-key 'normal 'global ",x" 'execute-extended-command)
 
 (defun jdr/org-mode-setup ()
-  (org-indent-mode)
-  (variable-pitch-mode 1)
-  (visual-line-mode 1)
   (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
-
-   ;; Org styling
-   org-pretty-entities t
-   org-ellipsis "…"
-
    ;; Agenda styling
    org-agenda-block-separator ?─
    org-agenda-time-grid
@@ -289,6 +282,7 @@
    "⭠ now ─────────────────────────────────────────────────")
 
   ;; override variable pitch fonts selectively
+  (variable-pitch-mode 1)
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
@@ -299,16 +293,25 @@
 
 (use-package org
   :hook (org-mode . jdr/org-mode-setup)
+  :custom
+  (org-auto-align-tags nil)
+  (org-tags-column 0)
+  (org-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+  (org-insert-heading-respect-content t)
+  (org-pretty-entities t)
+  (org-ellipsis "…")
+  (org-agenda-start-with-log-mode t)
+  (org-log-into-drawer t)
+  (org-directory "~/Documents/org/")
+  (org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
+  (org-archive-location "~/Documents/org/archive")
+  (org-todo-keywords
+   '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
+               "|" "DONE(d!)" "CANCELLED(c!)")))
   :config
-  (setq org-agenda-start-with-log-mode t)
-  (setq org-log-into-drawer t)
-  (setq org-directory "~/Documents/org/")
-  (setq org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
-  (setq org-archive-location "~/Documents/org/archive")
-
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c!)")))
-  )
+  (org-indent-mode 1)
+  (visual-line-mode 1))
 
 (use-package mermaid-mode)
 (use-package ob-mermaid)
@@ -337,13 +340,13 @@
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
   (add-to-list 'org-structure-template-alist '("js" . "src js")))
 
-(defun efs/org-mode-visual-fill ()
+(defun jdr/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
+  :hook (org-mode . jdr/org-mode-visual-fill))
 
 (defun jdr/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -357,8 +360,16 @@
   :config
   (lsp-enable-which-key-integration t)
   :custom
-  ;; TODO why isn't this working?? https://github.com/emacs-lsp/lsp-mode/issues/1223#issuecomment-586674535
-  (lsp-signature-auto-activate nil))
+  (lsp-eldoc-enable-hover nil)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-diagnostics nil)
+  (lsp-ui-sideline-show-symbol t)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-enable-diagnostics nil))
+
+
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -389,17 +400,14 @@
 
 (use-package tree-sitter
   :ensure t
-  :hook ((typescript-mode . tree-sitter-hl-mode)
-         (typescript-tsx-mode . tree-sitter-hl-mode)))
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
 (use-package tree-sitter-langs
   :ensure t
-  :after tree-sitter
-  :config
-  (tree-sitter-require 'tsx)
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
+  :after tree-sitter)
 
-;; Langauge configuration ------------------------------------------------------
 (use-package typescript-mode
   :mode "\\.ts\\'\\|\\.tsx\\'"
   :hook (typescript-mode . lsp-deferred)
@@ -415,14 +423,37 @@
 (setq plantuml-default-exec-mode 'executable)
 (setq org-plantuml-exec-mode 'executable)
 
-(use-package magit
-  :commands magit-status)
+(use-package magit)
 
 (use-package vterm
-  :ensure t)
+  :custom
+  (vterm-environment
+   '("fish_term24bit=1"
+     "fish_color_autosuggestion=#505050"
+     "fish_color_cancel=#a60000"
+     "fish_color_command=#5317ac"
+     "fish_color_comment=#505050"
+     "fish_color_cwd=#000000"
+     "fish_color_cwd_root=#000000"
+     "fish_color_end=#000000"
+     "fish_color_error=#a60000"
+     "fish_color_escape=#000000"
+     "fish_color_history_current=#000000"
+     "fish_color_host=#000000"
+     "fish_color_host_remote=#000000"
+     "fish_color_match=#000000"
+     "fish_color_normal=#000000"
+     "fish_color_operator=#721045"
+     "fish_color_param=#000000"
+     "fish_color_quote=#2544bb"
+     "fish_color_redirection=#721045"
+     "fish_color_search_match=#000000"
+     "fish_color_selection=#000000"
+     "fish_color_status=#000000"
+     "fish_color_user=#000000")))
 
-;; (use-package yasnippet
-;;   :config
-;;   (yas-global-mode 1)
-;;   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-;; )
+(use-package yasnippet
+  :config
+  (yas-global-mode 1)
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+)
