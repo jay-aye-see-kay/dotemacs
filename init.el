@@ -249,6 +249,7 @@
     :prefix ","))
 
 (rune/leader-keys
+  "p" project-prefix-map
   "gs" 'magit-status
   "hf" 'helpful-function
   "hv" 'helpful-variable
