@@ -252,6 +252,7 @@
     :prefix ","))
 
 (rune/leader-keys
+  "p" project-prefix-map
   "gs" 'magit-status
   "hf" 'helpful-function
   "hv" 'helpful-variable
@@ -261,17 +262,17 @@
 (use-package avy
   :after evil
   :config
-  (evil-define-key 'normal 'global "s" 'evil-avy-goto-char)
-)
+  (evil-define-key 'normal 'global "s" 'evil-avy-goto-char))
+
+;; quick keymaps like my vim setup
+(rune/quick-keys
+  "b" 'switch-to-buffer
+  "f" 'find-file
+  "o" 'recentf-open-files
+  "a" 'deadgrep
+  "x" 'execute-extended-command)
 
 (use-package deadgrep)
-
-;; quick keymaps from vim
-(evil-define-key 'normal 'global ",b" 'switch-to-buffer)
-(evil-define-key 'normal 'global ",f" 'find-file)
-(evil-define-key 'normal 'global ",o" 'recentf-open-files)
-(evil-define-key 'normal 'global ",a" 'deadgrep)
-(evil-define-key 'normal 'global ",x" 'execute-extended-command)
 
 (defun jdr/org-mode-setup ()
   (setq
@@ -296,6 +297,7 @@
 
 (use-package org
   :hook (org-mode . jdr/org-mode-setup)
+  :bind (("C-c l" . org-store-link))
   :custom
   (org-auto-align-tags nil)
   (org-tags-column 0)
@@ -316,15 +318,20 @@
   (org-indent-mode 1)
   (visual-line-mode 1))
 
+(use-package mermaid-mode)
+(use-package ob-mermaid)
+(setq ob-mermaid-cli-path "~/.yarn/bin/mmdc")
+
 (with-eval-after-load 'org
-  (add-to-list
-   'org-src-lang-modes '("plantuml" . plantuml))
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+  (add-to-list 'org-src-lang-modes '("javascript" . js))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (js . t)
      (shell . t)
      (python . t)
+     (mermaid . t)
      (plantuml . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
