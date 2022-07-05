@@ -44,9 +44,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package quelpa)
-(use-package quelpa-use-package)
-
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun jdr/org-babel-tangle ()
   (when (string-equal (file-name-directory buffer-file-name)
@@ -60,13 +57,13 @@
 (setq modus-themes-bold-constructs t
       modus-themes-italic-constructs t
       modus-themes-fringes 'subtle
-      modus-themes-tabs-accented t
-      modus-themes-paren-match '(bold intense)
+      modus-themes-paren-match '(intense)
       modus-themes-prompts '(bold intense)
       modus-themes-completions 'opinionated
       modus-themes-org-blocks 'tinted-background
       modus-themes-scale-headings t
       modus-themes-region '(bg-only)
+      modus-themes-syntax '(yellow-comments)
       modus-themes-headings
       '((1 . (overline background 1.4))
         (2 . (background 1.3))
@@ -94,6 +91,8 @@
 
 (recentf-mode t)
 (setq recentf-max-saved-items 50)
+
+(electric-pair-mode 1)
 
 (use-package helpful
   :bind
@@ -411,59 +410,13 @@
 
 (use-package tree-sitter-langs
   :ensure t
-  :after tree-sitter
-  (tree-sitter-require 'tsx)
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx)))
-
-(use-package evil-textobj-tree-sitter
-  :ensure t
-  :config
-  ;; bind `function.outer`(entire function block) to `f` for use in things like `vaf`, `yaf`
-  (define-key evil-outer-text-objects-map "f"
-    (evil-textobj-tree-sitter-get-textobj "function.outer"))
-
-  ;; bind `function.inner`(function block without name and args) to `f` for use in things like `vif`, `yif`
-  (define-key evil-inner-text-objects-map "f"
-    (evil-textobj-tree-sitter-get-textobj "function.inner"))
-
-  ;; You can also bind multiple items and we will match the first one we can find
-  (define-key evil-outer-text-objects-map "a"
-    (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
-  )
-
-;; auto-format different source code files extremely intelligently
-;; https://github.com/radian-software/apheleia
-(use-package apheleia
-  :ensure t
-  :config
-  (apheleia-global-mode +1))
+  :after tree-sitter)
 
 (use-package typescript-mode
-  :after tree-sitter
   :mode "\\.ts\\'\\|\\.tsx\\'"
   :hook (typescript-mode . lsp-deferred)
   :config
-  (setq typescript-indent-level 2)
-  ;; (define-derived-mode typescriptreact-mode typescript-mode
-  ;;   "TypeScript TSX")
-  (define-derived-mode typescript-tsx-mode typescript-mode "TSX"
-    "Major mode for editing TSX files.")
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode))
-  ;; (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx))
-  )
-
-;; https://github.com/orzechowskid/tsi.el/
-;; great tree-sitter-based indentation for typescript/tsx, css, json
-(use-package tsi
-  :after tree-sitter
-  :quelpa (tsi :fetcher github :repo "orzechowskid/tsi.el")
-  ;; define autoload definitions which when actually invoked will cause package to be loaded
-  :commands (tsi-typescript-mode tsi-json-mode tsi-css-mode)
-  :init
-  (add-hook 'typescript-mode-hook (lambda () (tsi-typescript-mode 1)))
-  (add-hook 'json-mode-hook (lambda () (tsi-json-mode 1)))
-  (add-hook 'css-mode-hook (lambda () (tsi-css-mode 1)))
-  (add-hook 'scss-mode-hook (lambda () (tsi-scss-mode 1))))
+  (setq typescript-indent-level 2))
 
 (use-package nix-mode
   :mode "\\.nix\\'")
@@ -508,10 +461,3 @@
   (yas-global-mode 1)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 )
-
-;; (setq tab-width 4)
-;; ;; http://xahlee.info/emacs/emacs/whitespace-mode.html
-;; (whitespace-mode)
-;; ;; or
-;; (global-whitespace-mode)
-;; (setq whitespace-style '(face trailing tabs missing-newline-at-eof empty))
