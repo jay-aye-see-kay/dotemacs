@@ -274,6 +274,8 @@
 (use-package deadgrep)
 
 (defun jdr/org-mode-setup ()
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+
   (setq
    ;; Agenda styling
    org-agenda-block-separator ?─
@@ -298,6 +300,10 @@
   :hook (org-mode . jdr/org-mode-setup)
   :bind (("C-c l" . org-store-link))
   :custom
+  (org-indent-mode 1)
+  (visual-line-mode 1)
+  (org-startup-with-inline-images t)
+  (org-confirm-babel-evaluate nil)
   (org-auto-align-tags nil)
   (org-tags-column 0)
   (org-catch-invisible-edits 'show-and-error)
@@ -312,14 +318,11 @@
   (org-archive-location "~/Documents/org/archive")
   (org-todo-keywords
    '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
-               "|" "DONE(d!)" "CANCELLED(c!)")))
-  :config
-  (org-indent-mode 1)
-  (visual-line-mode 1))
+	       "|" "DONE(d!)" "CANCELLED(c!)")))
+  )
 
 (use-package mermaid-mode)
 (use-package ob-mermaid)
-(setq ob-mermaid-cli-path "~/.yarn/bin/mmdc")
 
 (with-eval-after-load 'org
   (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
