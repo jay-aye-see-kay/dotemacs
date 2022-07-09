@@ -344,9 +344,11 @@ Make evil window movements less strict, by default they're only =C-w {h,j,k,l}=,
 
   ;; quick keymaps like my vim setup
   (rune/quick-keys
-    "b" 'switch-to-buffer
+    "b" 'consult-buffer
+    "B" 'consult-project-buffer
     "f" 'find-file
-    "o" 'recentf-open-files
+    "l" 'consult-line
+    "o" 'consult-recent-file
     "a" 'deadgrep
     "x" 'execute-extended-command)
 
