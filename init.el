@@ -281,6 +281,8 @@
 
 (defun jdr/org-mode-setup ()
   (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+  (org-indent-mode 1)
+  (visual-line-mode 1)
 
   (setq
    ;; Agenda styling
@@ -306,8 +308,6 @@
   :hook (org-mode . jdr/org-mode-setup)
   :bind (("C-c l" . org-store-link))
   :custom
-  (org-indent-mode 1)
-  (visual-line-mode 1)
   (org-startup-with-inline-images t)
   (org-confirm-babel-evaluate nil)
   (org-auto-align-tags nil)
@@ -319,9 +319,9 @@
   (org-ellipsis "…")
   (org-agenda-start-with-log-mode t)
   (org-log-into-drawer t)
-  (org-directory "~/Documents/org/")
-  (org-agenda-files '("~/Documents/org/" "~/Documents/org/logbook"))
-  (org-archive-location "~/Documents/org/archive")
+  (org-directory "~/org/")
+  (org-agenda-files '("~/org/" "~/org/logbook"))
+  (org-archive-location "~/org/archive")
   (org-todo-keywords
    '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
 	       "|" "DONE(d!)" "CANCELLED(c!)")))
