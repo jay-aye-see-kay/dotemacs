@@ -422,6 +422,7 @@ Make evil window movements less strict, by default they're only =C-w {h,j,k,l}=,
        (shell . t)
        (python . t)
        (mermaid . t)
+       (latex . t)
        (plantuml . t)))
 
     (push '("conf-unix" . conf-unix) org-src-lang-modes))

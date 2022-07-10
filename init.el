@@ -340,6 +340,7 @@
      (shell . t)
      (python . t)
      (mermaid . t)
+     (latex . t)
      (plantuml . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
