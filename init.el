@@ -174,6 +174,7 @@
 (use-package orderless
   :init
   (setq completion-styles '(orderless basic)
+        orderless-matching-styles '(orderless-flex orderless-regexp)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
