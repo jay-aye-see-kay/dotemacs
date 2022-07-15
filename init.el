@@ -184,6 +184,8 @@
   (evil-want-C-u-scroll t)
   (evil-undo-system 'undo-redo)
   (evil-want-Y-yank-to-eol t)
+  (evil-split-window-below t)
+  (evil-vsplit-window-right t)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -421,6 +423,10 @@
 (use-package tree-sitter-langs
   :ensure t
   :after tree-sitter)
+
+(use-package apheleia
+  :config
+  (apheleia-global-mode +1))
 
 (use-package typescript-mode
   :mode "\\.ts\\'\\|\\.tsx\\'"
