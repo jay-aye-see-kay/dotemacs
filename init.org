@@ -274,6 +274,9 @@ All the additional evil packages that are basically required
   (use-package evil-collection
     :after evil
     :ensure t
+    :custom
+    (evil-collection-calendar-want-org-bindings t)
+    (evil-collection-setup-minibuffer t)
     :config
     (evil-collection-init))
 
@@ -323,6 +326,9 @@ Make evil window movements less strict, by default they're only =C-w {h,j,k,l}=,
     (setq which-key-idle-delay 0.3))
 
   (use-package general
+    :init
+    (setq general-override-states
+          '(insert emacs hybrid normal visual motion operator replace))
     :config
     (general-create-definer rune/leader-keys
       :keymaps '(normal insert visual emacs)

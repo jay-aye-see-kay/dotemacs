@@ -206,6 +206,9 @@
 (use-package evil-collection
   :after evil
   :ensure t
+  :custom
+  (evil-collection-calendar-want-org-bindings t)
+  (evil-collection-setup-minibuffer t)
   :config
   (evil-collection-init))
 
@@ -248,6 +251,9 @@
   (setq which-key-idle-delay 0.3))
 
 (use-package general
+  :init
+  (setq general-override-states
+        '(insert emacs hybrid normal visual motion operator replace))
   :config
   (general-create-definer rune/leader-keys
     :keymaps '(normal insert visual emacs)
