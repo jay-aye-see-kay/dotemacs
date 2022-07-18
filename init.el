@@ -339,8 +339,18 @@
   (org-archive-location "~/org/archive")
   (org-todo-keywords
    '((sequence "TODO(t)" "IN-PROGRESS(p!)" "WAITING(w@/!)"
-	       "|" "DONE(d!)" "CANCELLED(c!)")))
+               "|" "DONE(d!)" "CANCELLED(c!)")))
   )
+
+(use-package org-journal
+  :ensure t
+  :config
+  (define-key org-mode-map (kbd "C-c C-j") 'org-journal-new-entry)
+  (global-set-key (kbd "C-c C-S-j") 'org-journal-open-current-journal-file)
+  (setq org-journal-dir "~/Documents/org/logbook/"
+        org-journal-file-type 'weekly
+        org-journal-file-format "week-%W.journal.org"
+        org-journal-enable-agenda-integration t))
 
 (use-package mermaid-mode)
 (use-package ob-mermaid)
