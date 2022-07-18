@@ -94,6 +94,13 @@
 
 (electric-pair-mode 1)
 
+(add-hook
+ 'org-mode-hook
+ (lambda ()
+   (setq-local electric-pair-inhibit-predicate
+               `(lambda (c)
+                  (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+
 (use-package helpful
   :bind
   ([remap describe-command] . helpful-command)

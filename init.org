@@ -126,11 +126,18 @@ Use the [[https://github.com/emacscollective/no-littering/blob/master/no-litteri
 #+end_src
 
 ** Autopair brackets
-This appears to be all we have to do for relatively smart auto pairing of brackets.
-TODO maybe I only want this on in prog-mode ? In org mode the =<el TAB= shortcut expands out to =<el>=
+Built-in and relatively smart auto pairing of brackets and quotes.
+Disable auto-pairing of =<= in org mode because it messes with [[*Org structured templates][structured templates]]. See [[https://emacs.stackexchange.com/questions/26225/dont-pair-quotes-in-electric-pair-mode][this stack overflow question]] for how it works.
 #+begin_src emacs-lisp
   (electric-pair-mode 1)
-#+end_src
+
+  (add-hook
+   'org-mode-hook
+   (lambda ()
+     (setq-local electric-pair-inhibit-predicate
+                 `(lambda (c)
+                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+  #+end_src
 
 ** Help
 #+begin_src emacs-lisp
